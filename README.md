@@ -1,2 +1,2 @@
 # shp-tools
-GIS geoprocessing tools for shapefiles
+Geoprocessing tools for shapefiles
