@@ -23,6 +23,8 @@ from shp_tools.topology import linestring_duplicates
 
 DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'topology')
+SHP_DATA = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'data', 'topology', 'shp')
 
 if str(pd.__version__) < LooseVersion('0.23'):
     CONCAT_KWARGS = {}
