@@ -58,6 +58,3 @@ coverage.xml
 
 # Other files
 .DS_Store
-
-# temp files
-my_files/
