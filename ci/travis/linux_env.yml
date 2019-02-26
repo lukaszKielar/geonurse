@@ -1,4 +1,4 @@
-name: geopython3
+name: test
 channels:
   - conda-forge
   - anaconda

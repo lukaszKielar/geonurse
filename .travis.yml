@@ -5,7 +5,7 @@ sudo: false
 matrix:
   include:
     # Only one test for these Python versions
-    - env: ENV_FILE="ci/travis/linux_env"
+    - env: ENV_FILE="ci/travis/linux_env.yml"
 
 install:
   # Install conda
@@ -16,7 +16,7 @@ install:
   - conda update conda
 
   # Install dependencies
-  - conda create --name test --file "${ENV_FILE}"
+  - conda env create --file="${ENV_FILE}"
   - source activate test
   - pip install -e .
   - conda list
