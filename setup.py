@@ -81,8 +81,13 @@ class MypyCommand(Command):
 
     def run(self):
         subprocess.run('python setup.py clean', shell=True)
-        cmd = 'python -m mypy ' + self.mypy_opts
-        subprocess.run(cmd, shell=True)
+        cmd_to_run = 'python -m mypy ' + self.mypy_opts
+        cmd = subprocess.run(cmd_to_run, shell=True)
+        if cmd.returncode != 0:
+            print("Mypy failed!")
+            sys.exit(cmd.returncode)
+        else:
+            print("Mypy succeeded!")
 
 
 setup(

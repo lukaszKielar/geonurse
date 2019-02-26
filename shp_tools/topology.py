@@ -1,3 +1,7 @@
+# TODO create separate modules for specific types of geometries
+
+from typing import Union, List, Callable
+
 import warnings
 import collections
 import numpy as np
@@ -5,13 +9,13 @@ import pandas as pd
 from functools import reduce
 from operator import add
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
 from shapely.geometry import box, mapping, shape
-from shapely.geometry import GeometryCollection
+from shapely.geometry import Point, MultiPoint
+from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import Polygon, MultiPolygon
-from shapely.geometry import MultiPoint
-from shapely.geometry import MultiLineString
+from shapely.geometry import GeometryCollection
 
 import geopandas as gpd
 from geopandas import GeoDataFrame, GeoSeries
@@ -20,13 +24,15 @@ from geopandas import GeoDataFrame, GeoSeries
 """GENERAL"""
 
 
-def _round_coords(geom, precision=7):
+def _round_coords(geom: Union[Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection],
+                  precision: int = 7) -> Union[Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection]:
     """
     Function rounds coordinates for geometries.
 
     >>> geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
     """
-    def _new_coords(coords, precision):
+    def _new_coords(coords,
+                    precision: int):
         new_coords = []
         try:
             return round(coords, int(precision))
@@ -39,7 +45,8 @@ def _round_coords(geom, precision=7):
     return shape(geojson)
 
 
-def set_precision(geoseries, precision=7):
+def set_precision(geoseries: GeoSeries,
+                  precision: int = 7) -> GeoSeries:
     """
     Function returns geoseries with
     geometries that has rounded coordinates
@@ -64,7 +71,9 @@ def set_precision(geoseries, precision=7):
 
 
 # TODO check if output geometry area is the same as before katana
-def _katana(geometry, threshold=100, count=0):
+def _katana(geometry: Union[Polygon, MultiPolygon],
+            threshold: int = 100,
+            count: int = 0) -> MultiPolygon:
     """
     Copyright (c) 2016, Joshua Arnott
 
@@ -119,7 +128,7 @@ def _katana(geometry, threshold=100, count=0):
         # split top to bottom
         a = box(bounds[0], bounds[1], bounds[0] + width / 2, bounds[3])
         b = box(bounds[0] + width / 2, bounds[1], bounds[2], bounds[3])
-    result = []
+    result = []  # type: List[MultiPolygon]
     for d in (a, b,):
         c = geometry.intersection(d)
         if not isinstance(c, GeometryCollection):
@@ -130,7 +139,7 @@ def _katana(geometry, threshold=100, count=0):
     if count > 0:
         return result
     # convert multipart into singlepart
-    final_result = []
+    final_result = []  # type: List[MultiPolygon]
     for g in result:
         if isinstance(g, MultiPolygon):
             final_result.extend(g)
@@ -139,7 +148,9 @@ def _katana(geometry, threshold=100, count=0):
     return MultiPolygon(final_result)
 
 
-def _layer_katana(gdf, threshold=100, explode=False):
+def _layer_katana(gdf: GeoDataFrame,
+                  threshold: int = 100,
+                  explode: bool = False) -> GeoDataFrame:
     """
     Function allows to split individual Polygon geometries
     in GeoDataFrame across it's shorter dimension.
@@ -171,7 +182,8 @@ def _layer_katana(gdf, threshold=100, explode=False):
         return gdf_copy
 
 
-def _return_affected_geoms(geoseries, func):
+def _return_affected_geoms(geoseries: GeoSeries,
+                           func: Callable) -> GeoSeries:
     """
     Function returns geometry features fetched by query func
 
@@ -195,7 +207,7 @@ def _return_affected_geoms(geoseries, func):
 """POLYGON'S EXTERIOR DUPLICATES"""
 
 
-def _exterior_duplicates_bool(geom):
+def _exterior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
     """
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether polygon's exterior has/hasn't
@@ -216,7 +228,7 @@ def _exterior_duplicates_bool(geom):
             return False
 
 
-def _return_duplicated_exterior_coords(geom):
+def _return_duplicated_exterior_coords(geom: Union[Polygon, MultiPolygon]) -> list:
     """
     Function returns list of points duplicated on polygon's exterior
     """
@@ -234,7 +246,7 @@ def _return_duplicated_exterior_coords(geom):
             return []
 
 
-def exterior_duplicates(geoseries):
+def exterior_duplicates(geoseries: GeoSeries) -> GeoSeries:
     """
     Function returns GeoSeries object with
     MultiPoint geometries for Polygons which have
@@ -261,7 +273,7 @@ def exterior_duplicates(geoseries):
 """POLYGON'S INTERIOR DUPLICATES"""
 
 
-def _geom_with_interiors(geom):
+def _geom_with_interiors(geom: Union[Polygon, MultiPolygon]) -> bool:
     """
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether polygon has/hasn't interior(s).
@@ -277,7 +289,7 @@ def _geom_with_interiors(geom):
             return False
 
 
-def _interior_duplicates_bool(geom):
+def _interior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
     """
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether polygon has/hasn't duplicated interior vertices.
@@ -296,7 +308,7 @@ def _interior_duplicates_bool(geom):
             return False
 
 
-def _return_duplicated_interior_coords(geom):
+def _return_duplicated_interior_coords(geom: Union[Polygon, MultiPolygon]) -> list:
     """
     Function returns list of points duplicated on polygon's interior
     """
@@ -324,7 +336,7 @@ def _return_duplicated_interior_coords(geom):
         return duplicated_vertices
 
 
-def interior_duplicates(geoseries):
+def interior_duplicates(geoseries: GeoSeries) -> GeoSeries:
     """
     Function returns GeoSeries object with
     MultiPoint geometries for Polygons which have
@@ -352,7 +364,7 @@ def interior_duplicates(geoseries):
 """LINESTRING DUPLICATES"""
 
 
-def _linestring_duplicates_bool(geom):
+def _linestring_duplicates_bool(geom: Union[LineString, MultiLineString]) -> bool:
     """
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether (multi)linestring
@@ -376,7 +388,7 @@ def _linestring_duplicates_bool(geom):
             return False
 
 
-def _return_duplicated_linestring_coords(geom):
+def _return_duplicated_linestring_coords(geom: Union[LineString, MultiLineString]) -> list:
     """
     Function returns list of duplicated linestring points
     """
@@ -397,7 +409,7 @@ def _return_duplicated_linestring_coords(geom):
             return []
 
 
-def linestring_duplicates(geoseries):
+def linestring_duplicates(geoseries: GeoSeries) -> GeoSeries:
     """
     Function returns GeoSeries object with
     MultiPoint geometries for LineStrings
@@ -425,7 +437,8 @@ def linestring_duplicates(geoseries):
 
 
 # TODO check how geometry column has being named
-def overlaps(geoseries, precision=7):
+def overlaps(geoseries: GeoSeries,
+             precision: int = 7) -> GeoDataFrame:
     """
     Function returns GeoDataFrame object with
     self-intersected geometries from provided

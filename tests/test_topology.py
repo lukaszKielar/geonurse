@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from distutils.version import LooseVersion
 
 import os
@@ -10,14 +8,18 @@ import pandas as pd
 from shapely.geometry import MultiPoint
 
 from geopandas import read_file
-from geopandas.tools.topology import set_precision
-from geopandas.tools.topology import _return_affected_geoms
-from geopandas.tools.topology import _exterior_duplicates_bool, \
-    _return_duplicated_exterior_coords, exterior_duplicates
-from geopandas.tools.topology import _geom_with_interiors, _interior_duplicates_bool, \
-    _return_duplicated_interior_coords, interior_duplicates
-from geopandas.tools.topology import _linestring_duplicates_bool, _return_duplicated_linestring_coords, \
-    linestring_duplicates
+from shp_tools.topology import set_precision
+from shp_tools.topology import _return_affected_geoms
+from shp_tools.topology import _exterior_duplicates_bool
+from shp_tools.topology import _return_duplicated_exterior_coords
+from shp_tools.topology import exterior_duplicates
+from shp_tools.topology import _geom_with_interiors
+from shp_tools.topology import _interior_duplicates_bool
+from shp_tools.topology import _return_duplicated_interior_coords
+from shp_tools.topology import interior_duplicates
+from shp_tools.topology import _linestring_duplicates_bool
+from shp_tools.topology import _return_duplicated_linestring_coords
+from shp_tools.topology import linestring_duplicates
 
 DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'topology')

@@ -3,7 +3,7 @@ from typing import Union
 from functools import reduce
 from operator import add
 
-from geopandas import GeoDataFrame, GeoSeries
+from geopandas import GeoSeries
 
 from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import MultiPoint
