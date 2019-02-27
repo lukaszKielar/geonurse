@@ -24,4 +24,7 @@ install:
 script:
   - python setup.py lint
   - python setup.py mypy
-  - python setup.py test
+  - pytest tests --cov geonurse -v --cov-report term-missing
+
+after_success:
+  - codecov
