@@ -1,10 +1,11 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
+asn1crypto=0.24.0=py37_1003
 astroid=2.1.0=py37_1000
 atk=2.25.90=hb9dd440_1002
 atomicwrites=1.3.0=py_0
-attrs=18.2.0=py_0
+attrs=18.2.0=pypi_0
 backcall=0.1.0=py_0
 blas=1.0=mkl
 boost-cpp=1.68.0=h11c811c_1000
@@ -12,10 +13,14 @@ bzip2=1.0.6=h14c3975_1002
 ca-certificates=2018.11.29=ha4d7672_0
 cairo=1.16.0=ha4e643d_1000
 certifi=2018.11.29=py37_1000
-click=7.0=py_0
+cffi=1.12.2=py37h9745a5d_0
+chardet=3.0.4=py37_1003
+click=7.0=pypi_0
 click-plugins=1.0.4=py_0
-cligj=0.5.0=py_0
+cligj=0.5.0=pypi_0
+codecov=2.0.15=py_1
 coverage=4.5.2=py37h14c3975_1001
+cryptography=2.5=py37hb7f436b_1
 curl=7.64.0=h646f8bb_0
 cycler=0.10.0=py_1
 dbus=1.13.0=h4e0c4b3_1000
@@ -28,7 +33,7 @@ freetype=2.9.1=h94bbf69_1005
 freexl=1.0.5=h14c3975_1002
 gdal=2.4.0=py37h1c6dbfb_1002
 gdk-pixbuf=2.36.12=h49783d7_1002
-geopandas=0.4.0=py_1
+geopandas=0.4.0=pypi_0
 geos=3.7.1=hf484d3e_1000
 geotiff=1.4.3=h1105359_1000
 gettext=0.19.8.1=h9745a5d_1001
@@ -42,6 +47,7 @@ harfbuzz=2.3.1=h6824563_0
 hdf4=4.2.13=h9a582f1_1002
 hdf5=1.10.4=nompi_h11e915b_1105
 icu=58.2=hf484d3e_1000
+idna=2.8=py37_1000
 intel-openmp=2019.1=144
 ipykernel=5.1.0=py37h24bf2e0_1002
 ipython=7.3.0=py37h24bf2e0_0
@@ -113,12 +119,15 @@ psycopg2=2.7.7=py37hb7f436b_0
 pthread-stubs=0.4=h14c3975_1001
 ptyprocess=0.6.0=py37_1000
 py=1.8.0=py_0
+pycparser=2.19=py_0
 pygments=2.3.1=py_0
 pylint=2.2.2=py37_1000
+pyopenssl=19.0.0=py37_0
 pyparsing=2.3.1=py_0
 pyproj=1.9.6=py37hc0953d3_1000
 pyqt=5.6.0=py37h13b7fb3_1008
 pysal=2.0.0=py_0
+pysocks=1.6.8=py37_1002
 pytest=4.3.0=py37_0
 pytest-cov=2.6.1=py_0
 pytest-runner=4.4=py_0
@@ -128,6 +137,7 @@ pytz=2018.9=py_0
 pyzmq=18.0.0=py37h0e1adb2_0
 qt=5.6.2=hce4f676_1013
 readline=7.0=hf8c457e_1001
+requests=2.21.0=py37_1000
 rtree=0.8.3=py37_1000
 scipy=1.2.1=py37h7c811a0_0
 seaborn=0.9.0=py_0
@@ -144,6 +154,7 @@ traitlets=4.3.2=py37_1000
 typed-ast=1.2.0=py37h14c3975_1000
 typing=3.6.4=py37_0
 tzcode=2018g=h14c3975_1001
+urllib3=1.24.1=py37_1000
 wcwidth=0.1.7=py_1
 wheel=0.33.1=py37_0
 wrapt=1.11.1=py37h14c3975_0
