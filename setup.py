@@ -8,10 +8,10 @@ import subprocess
 from setuptools import setup, find_packages, Command
 
 LONG_DESCRIPTION = """
-shp-tools is a project to add geospatial geoprocessing
+geonurse is a project to add geospatial geoprocessing
 tools in order to extend geopandas functionality.
 
-The goal of shp-tools is to perform geoprocessing operations
+The goal of geonurse is to perform geoprocessing operations
 fast and easy. Module requires geopandas library.
 
 .. _geopandas: https://github.com/geopandas/geopandas
@@ -90,13 +90,13 @@ class MypyCommand(Command):
 
 
 setup(
-    name='shp-tools',
+    name='geonurse',
     version='0.0.1',
     description='Geoprocessing tools for geopandas',
     license='Apache License 2.0',
     author='Łukasz Kielar',
     author_email='luk.kielar@gmail.com',
-    url='https://github.com/lukaszKielar/shp-tools',
+    url='https://github.com/lukaszKielar/geonurse',
     long_description=LONG_DESCRIPTION,
     setup_requires=[
         'pytest-runner',
