@@ -8,18 +8,18 @@ import pandas as pd
 from shapely.geometry import MultiPoint
 
 from geopandas import read_file
-from shp_tools.topology import set_precision
-from shp_tools.topology import _return_affected_geoms
-from shp_tools.topology import _exterior_duplicates_bool
-from shp_tools.topology import _return_duplicated_exterior_coords
-from shp_tools.topology import exterior_duplicates
-from shp_tools.topology import _geom_with_interiors
-from shp_tools.topology import _interior_duplicates_bool
-from shp_tools.topology import _return_duplicated_interior_coords
-from shp_tools.topology import interior_duplicates
-from shp_tools.topology import _linestring_duplicates_bool
-from shp_tools.topology import _return_duplicated_linestring_coords
-from shp_tools.topology import linestring_duplicates
+from geonurse.topology import set_precision
+from geonurse.topology import _return_affected_geoms
+from geonurse.topology import _exterior_duplicates_bool
+from geonurse.topology import _return_duplicated_exterior_coords
+from geonurse.topology import exterior_duplicates
+from geonurse.topology import _geom_with_interiors
+from geonurse.topology import _interior_duplicates_bool
+from geonurse.topology import _return_duplicated_interior_coords
+from geonurse.topology import interior_duplicates
+from geonurse.topology import _linestring_duplicates_bool
+from geonurse.topology import _return_duplicated_linestring_coords
+from geonurse.topology import linestring_duplicates
 
 DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'topology')

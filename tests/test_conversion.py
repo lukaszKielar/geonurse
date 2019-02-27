@@ -9,8 +9,8 @@ from shapely.geometry import MultiPoint
 
 from geopandas import read_file
 from geopandas import GeoSeries
-from shp_tools.conversion import _linestring_to_multipoint
-from shp_tools.conversion import extract_nodes
+from geonurse.conversion import _linestring_to_multipoint
+from geonurse.conversion import extract_nodes
 
 DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'conversion')
