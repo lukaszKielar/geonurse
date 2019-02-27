@@ -3,16 +3,13 @@
 from typing import Union, List, Callable
 
 import warnings
-import collections
+from collections import Counter
 import numpy as np
-import pandas as pd
 from functools import reduce
 from operator import add
 
-# from tqdm import tqdm
-
 from shapely.geometry import box, mapping, shape
-from shapely.geometry import Point, MultiPoint
+from shapely.geometry import MultiPoint
 from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.geometry import GeometryCollection
@@ -24,8 +21,8 @@ from geopandas import GeoDataFrame, GeoSeries
 """GENERAL"""
 
 
-def _round_coords(geom: Union[Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection],
-                  precision: int = 7) -> Union[Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection]:
+def _round_coords(geom,
+                  precision: int = 7):
     """
     Function rounds coordinates for geometries.
 
@@ -233,13 +230,14 @@ def _return_duplicated_exterior_coords(geom: Union[Polygon, MultiPolygon]) -> li
     Function returns list of points duplicated on polygon's exterior
     """
     if isinstance(geom, MultiPolygon):
-        error_coords = reduce(add, [_return_duplicated_exterior_coords(polygon) for polygon in geom])
+        error_coords = reduce(add,
+                              [_return_duplicated_exterior_coords(polygon) for polygon in geom])
         return error_coords
     else:
         # slice list to get rid of first point which has
         # the same coordinates as the last one
         coords = list(geom.exterior.coords)[1:]
-        error_coords = [item for item, count in collections.Counter(coords).items() if count > 1]
+        error_coords = [item for item, count in Counter(coords).items() if count > 1]
         if len(error_coords) > 0:
             return error_coords
         else:
@@ -313,14 +311,15 @@ def _return_duplicated_interior_coords(geom: Union[Polygon, MultiPolygon]) -> li
     Function returns list of points duplicated on polygon's interior
     """
     if isinstance(geom, MultiPolygon):
-        error_coords = reduce(add, [_return_duplicated_interior_coords(polygon) for polygon in geom])
+        error_coords = reduce(add,
+                              [_return_duplicated_interior_coords(polygon) for polygon in geom])
         return error_coords
     else:
         def _get_coords(interior):
             # slice list to get rid of first point which has
             # the same coordinates as the last one
             coords_list = list(interior.coords)[1:]
-            dupl_coords = [item for item, count in collections.Counter(coords_list).items() if count > 1]
+            dupl_coords = [item for item, count in Counter(coords_list).items() if count > 1]
             return dupl_coords
 
         interiors = geom.interiors
@@ -393,7 +392,8 @@ def _return_duplicated_linestring_coords(geom: Union[LineString, MultiLineString
     Function returns list of duplicated linestring points
     """
     if isinstance(geom, MultiLineString):
-        error_coords = reduce(add, [_return_duplicated_linestring_coords(linestring) for linestring in geom])
+        error_coords = reduce(add,
+                              [_return_duplicated_linestring_coords(linestring) for linestring in geom])
         return error_coords
     else:
         if geom.is_ring:
@@ -402,7 +402,7 @@ def _return_duplicated_linestring_coords(geom: Union[LineString, MultiLineString
             coords_list = list(geom.coords)[1:]
         else:
             coords_list = list(geom.coords)
-        error_coords = [item for item, count in collections.Counter(coords_list).items() if count > 1]
+        error_coords = [item for item, count in Counter(coords_list).items() if count > 1]
         if len(error_coords) > 0:
             return error_coords
         else:
@@ -493,127 +493,3 @@ def overlaps(geoseries: GeoSeries,
     gdf.reset_index(drop=True, inplace=True)
 
     return gdf
-
-
-def continuity(geoseries, precision=7):
-
-    geoseries = set_precision(geoseries, precision=precision)
-
-    gdf = GeoDataFrame(geometry=geoseries)
-    gdf["OBJECTID"] = range(len(gdf))
-
-    def create_id_int(row):
-        minimum = min(row["OBJECTID_left"], row["OBJECTID_right"])
-        maximum = max(row["OBJECTID_left"], row["OBJECTID_right"])
-        return "{}_{}".format(minimum, maximum)
-
-    if len(gdf) > 1:
-
-        # Self intersection checking
-        # split gdf into parts
-        gdf_array_left = np.array_split(gdf, 10)
-        gdf_array_right = np.array_split(gdf, 10)
-        joins_list = []
-        for gdf_left in tqdm(gdf_array_left, total=len(gdf_array_left)):
-            for gdf_right in gdf_array_right:
-                if len(gdf_left) > 0 and len(gdf_right) > 0:
-                    joins_list.append(gpd.sjoin(gdf_left, gdf_right))
-        return joins_list
-        # merge segments into one
-        merged_gdfs = GeoDataFrame(pd.concat(joins_list, ignore_index=True))
-        # filter out same objects
-        error_geoms_gdf = merged_gdfs[merged_gdfs["OBJECTID_left"] != merged_gdfs["OBJECTID_right"]]
-
-        if len(error_geoms_gdf) > 0:
-            # Verify wrong features
-            # Create new id in order to delete repeated geometies
-            # error_geoms_gdf["noweID"] = error_geoms_gdf.apply(create_id_int, axis=1)
-            error_geoms_gdf.loc[:, "new_id"] = error_geoms_gdf.apply(create_id_int, axis=1)
-            errors_no_dup = error_geoms_gdf.drop_duplicates("new_id")
-            # Split into array again
-            split_layer = np.array_split(errors_no_dup, np.trunc(np.sqrt(len(errors_no_dup))) + 1)
-
-            # Overlay operations for wrong features
-            geoms_list = []
-            for splita in tqdm(split_layer):
-                for i in range(len(splita)):
-                    row = splita.iloc[[i]]
-                    row1 = gdf[gdf["OBJECTID"] == row["OBJECTID_left"].item()]
-                    row2 = gdf[gdf["OBJECTID"] == row["OBJECTID_right"].item()]
-                    geom = row1.geometry.item().buffer(0).intersection(row2.geometry.item().buffer(0)).buffer(0)
-                    if not geom.is_empty:
-                        geoms_list.append(geom)
-
-            print("Zapis warstwy z nachodzeniami")
-            # zapis wynikowych danych
-            counter = 0
-            newdata = GeoDataFrame()
-            newdata['id'] = None
-            newdata['area'] = None
-            newdata['geometry'] = None
-            for g in tqdm(geoms_list):
-                counter += 1
-                newdata.loc[counter - 1, 'geometry'] = g
-                newdata.loc[counter - 1, 'id'] = counter
-                newdata.loc[counter - 1, 'area'] = g.area
-            newdata['area'] = newdata.area.astype('float64')
-            print("Liczba nakładających się obiektów - {}".format(len(newdata)))
-            if len(newdata):
-                print("Zapisano plik shp z błędami")
-                return newdata
-                # newdata_single = gis.multipart_to_singlepart(newdata)
-                # newdata_final = gis.clean_layer(newdata_single, area_filter=0.1)  # area_filter
-            else:
-                print("Brak elementów do zapisu")
-
-        else:
-            print("Brak nakładających się elementów")
-        """sprawdzanie rozlaczności"""
-        geoms = []
-        print("Sprawdzanie rozłączności")
-        # t = time.time()
-        # lens = [4096,2048,1024,512,256,128,64,32,16,8,4,2]
-        # leng = len(geoms)
-        geoms = [gdf.iloc[[i]].geometry.item().buffer(0) for i in range(len(gdf))]
-
-        print("Wyszukiwanie dziur")
-        # szukanie dziur
-        polygons = []
-        for geom in tqdm(geoms):
-            ints = []  # each geometry has its own interiors
-            if "Multi" in geom.geom_type:
-                for g in geom.geoms:
-                    if len(g.interiors):
-                        ints.append(g.interiors)
-            else:
-                if len(geom.interiors):
-                    ints.append(geom.interiors)
-            # print(len(ints))
-
-            for interior in ints:
-                for inter in interior:
-                    polygon = Polygon(inter.coords[:])
-                    polygons.append(polygon)
-
-        print("Zapis warstwy z rozłączeniami")
-        # zapis danych wynikowych
-        counter = 0
-        newdata = GeoDataFrame()
-        newdata['id'] = None
-        newdata['area'] = None
-        newdata['geometry'] = None
-        for g in tqdm(polygons):
-            if g.area < 200:
-                counter += 1
-                newdata.loc[counter - 1, 'geometry'] = g
-                newdata.loc[counter - 1, 'id'] = counter
-                newdata.loc[counter - 1, 'area'] = g.area
-        newdata['area'] = newdata.area.astype('float64')
-        print("Liczba rozłącznych obiektów - {}".format(len(newdata)))
-
-        if len(newdata):
-            print("Zapisano plik shp z błędami")
-            # newdata_single = gis.multipart_to_singlepart(newdata)
-            # newdata_final = gis.clean_layer_rozlacznosci(newdata_single)
-        else:
-            print("Brak elementów do zapisu")
