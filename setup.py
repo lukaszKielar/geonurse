@@ -92,7 +92,7 @@ class MypyCommand(Command):
 setup(
     name='geonurse',
     version='0.0.1',
-    description='Geoprocessing tools for geopandas',
+    description='Geoprocessing tools for shapefiles',
     license='Apache License 2.0',
     author='Łukasz Kielar',
     author_email='luk.kielar@gmail.com',
@@ -109,6 +109,7 @@ setup(
     },
     install_requires=[
         'geopandas>=0.4.0',
+        'shapely>=1.6.4'
     ],
     tests_require=[
         'pytest',

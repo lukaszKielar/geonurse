@@ -20,6 +20,7 @@ from geonurse.topology import interior_duplicates
 from geonurse.topology import _linestring_duplicates_bool
 from geonurse.topology import _return_duplicated_linestring_coords
 from geonurse.topology import linestring_duplicates
+from geonurse.topology import overlaps
 
 DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'topology')
@@ -38,42 +39,56 @@ else:
 # TODO add more complex geometries
 @pytest.fixture
 def layer_precision_input():
-    gdf_path = os.path.join(DATA, 'input_layer_precision.geojson')
+    gdf_path = os.path.join(DATA, 'test_data_layer_precision.geojson')
     gdf = read_file(gdf_path)
     return gdf.geometry
 
 
 @pytest.fixture
 def expected_coord_output():
-    gdf_path = os.path.join(DATA, 'output_layer_precision_3decimals.geojson')
+    gdf_path = os.path.join(DATA, 'expected_layer_precision_3decimals.geojson')
     gdf = read_file(gdf_path)
     return gdf.geometry
 
 
 @pytest.fixture
 def polygon_exterior_df():
-    gdf_path = os.path.join(DATA, 'polygon_exterior_test_data.geojson')
+    gdf_path = os.path.join(DATA, 'test_data_polygon_exterior_duplicates.geojson')
     gdf = read_file(gdf_path)
     return [gdf, gdf.geometry]
 
 
 @pytest.fixture
 def polygon_interior_df():
-    gdf_path = os.path.join(DATA, 'polygon_interior_test_data.geojson')
+    gdf_path = os.path.join(DATA, 'test_data_polygon_interior_duplicates.geojson')
     gdf = read_file(gdf_path)
     return [gdf, gdf.geometry]
 
 
 @pytest.fixture
 def linestring_test_df():
-    gdf_path = os.path.join(DATA, 'linestring_duplicates_test_data.geojson')
+    gdf_path = os.path.join(DATA, 'test_data_linestring_duplicates.geojson')
     gdf = read_file(gdf_path)
     return [gdf, gdf.geometry]
 
 
 @pytest.fixture
 def linestring_expected_df():
-    gdf_path = os.path.join(DATA, 'linestring_duplicates_expected_data.geojson')
+    gdf_path = os.path.join(DATA, 'expected_linestring_duplicates.geojson')
+    gdf = read_file(gdf_path)
+    return [gdf, gdf.geometry]
+
+
+@pytest.fixture
+def test_data_overlaps():
+    gdf_path = os.path.join(SHP_DATA, 'test_data_overlaps.shp')
+    gdf = read_file(gdf_path)
+    return [gdf, gdf.geometry]
+
+
+@pytest.fixture
+def expected_overlaps():
+    gdf_path = os.path.join(SHP_DATA, 'expected_overlaps.shp')
     gdf = read_file(gdf_path)
     return [gdf, gdf.geometry]
 
@@ -213,3 +228,13 @@ def test_linestring_duplicates(linestring_test_df, linestring_expected_df):
         output_geom = output_geoseries.geometry[i]
         expected_geom = expected_geoseries.geometry[i]
         assert output_geom.equals(expected_geom)
+
+
+def test_overlaps(test_data_overlaps, expected_overlaps):
+    test_gdf, _ = test_data_overlaps
+    expected_gdf, _ = expected_overlaps
+    # check expected output with different rounding
+    for i in range(3, 7):
+        temp_test_geom = set_precision(overlaps(test_gdf.geometry).geometry, precision=i).unary_union
+        temp_expected_geom = set_precision(expected_gdf.geometry, precision=i).unary_union
+        temp_test_geom.equals(temp_expected_geom)
