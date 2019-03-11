@@ -1,204 +1,18 @@
 # TODO create separate modules for specific types of geometries
 
-from typing import Union, List, Callable
+from typing import Union
 
-import warnings
+from geonurse.utils import _return_affected_geoms, set_precision
+
 from collections import Counter
 import numpy as np
 from functools import reduce
 from operator import add
-
-from shapely.geometry import box, mapping, shape
 from shapely.geometry import MultiPoint
 from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import Polygon, MultiPolygon
-from shapely.geometry import GeometryCollection
-
 import geopandas as gpd
 from geopandas import GeoDataFrame, GeoSeries
-
-
-"""GENERAL"""
-
-
-def _round_coords(geom,
-                  precision: int = 7):
-    """
-    Function rounds coordinates for geometries.
-
-    >>> geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
-    """
-    def _new_coords(coords,
-                    precision: int):
-        new_coords = []
-        try:
-            return round(coords, int(precision))
-        except TypeError:
-            for coord in coords:
-                new_coords.append(_new_coords(coord, precision))
-        return new_coords
-    geojson = mapping(geom)
-    geojson['coordinates'] = _new_coords(geojson['coordinates'], precision)
-    return shape(geojson)
-
-
-def set_precision(geoseries: GeoSeries,
-                  precision: int = 7) -> GeoSeries:
-    """
-    Function returns geoseries with
-    geometries that has rounded coordinates
-
-    Parameters
-    ----------
-    geoseries : GeoSeries
-    precision : int, default 7
-        Number of decimal places to which
-        the coordinates will be rounded.
-
-    Returns
-    -------
-    geoseries : GeoSeries
-        GeoSeries with geometries
-        resulting from rounding.
-
-    >>> geoseries = set_precision(geoseries, precision=3)
-    """
-    geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
-    return geoseries
-
-
-# TODO check if output geometry area is the same as before katana
-def _katana(geometry: Union[Polygon, MultiPolygon],
-            threshold: int = 100,
-            count: int = 0) -> MultiPolygon:
-    """
-    Copyright (c) 2016, Joshua Arnott
-
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without modification,
-    are permitted provided that the following conditions are met:
-
-        1. Redistributions of source code must retain the above copyright notice, this list
-            of conditions and the following disclaimer.
-        2. Redistributions in binary form must reproduce the above copyright notice,
-            this list of conditions and the following disclaimer in the documentation
-            and/or other materials provided with the distribution.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-    CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-    Taken from:
-    https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
-
-    Split a Polygon into two parts across it's shortest dimension
-
-    >>> gdf.geometry = gdf.geometry.apply(_katana, args=(threshold, count))
-    """
-    bounds = geometry.bounds
-    width = bounds[2] - bounds[0]
-    height = bounds[3] - bounds[1]
-    if max(width, height) <= threshold and count == 0:
-        warnings.warn("Polygon geometry hasn't been modified! Try to decrease threshold.",
-                      stacklevel=2)
-        # both the polygon is smaller than the threshold and count is set to 0
-        return geometry
-    elif max(width, height) <= threshold or count == 5:
-        # either the polygon is smaller than the threshold, or the maximum
-        # number of recursions has been reached
-        return [geometry]
-    if height >= width:
-        # split left to right
-        a = box(bounds[0], bounds[1], bounds[2], bounds[1] + height / 2)
-        b = box(bounds[0], bounds[1] + height / 2, bounds[2], bounds[3])
-    else:
-        # split top to bottom
-        a = box(bounds[0], bounds[1], bounds[0] + width / 2, bounds[3])
-        b = box(bounds[0] + width / 2, bounds[1], bounds[2], bounds[3])
-    result = []  # type: List[MultiPolygon]
-    for d in (a, b,):
-        c = geometry.intersection(d)
-        if not isinstance(c, GeometryCollection):
-            c = [c]
-        for e in c:
-            if isinstance(e, (Polygon, MultiPolygon)):
-                result.extend(_katana(e, threshold, count + 1))
-    if count > 0:
-        return result
-    # convert multipart into singlepart
-    final_result = []  # type: List[MultiPolygon]
-    for g in result:
-        if isinstance(g, MultiPolygon):
-            final_result.extend(g)
-        else:
-            final_result.append(g)
-    return MultiPolygon(final_result)
-
-
-def _layer_katana(gdf: GeoDataFrame,
-                  threshold: int = 100,
-                  explode: bool = False) -> GeoDataFrame:
-    """
-    Function allows to split individual Polygon geometries
-    in GeoDataFrame across it's shorter dimension.
-
-    Parameters
-    ----------
-    gdf : GeoDataFrame with MultiPolygon or Polygon geometry column
-    threshold : int, default 100
-        Parameter is used to define maximum size of longer polygon dimension.
-    explode : bool, default False
-        Parameter is used to define type of the output geometries.
-
-    Returns
-    -------
-    gdf : GeoDataFrame
-        GeoDataFrame with new set of geometries and attributes
-        resulting from the conversion
-
-    >>> new_gdf = _layer_katana(gdf, threshold=40, explode=False)
-    """
-    if not all(isinstance(geom, (Polygon, MultiPolygon)) for geom in gdf.geometry):
-        raise NotImplementedError("All geometries have to be line objects")
-    count = 0
-    gdf_copy = gdf.copy(deep=True)
-    gdf_copy.geometry = gdf_copy.geometry.apply(_katana, args=(threshold, count))
-    if explode:
-        return gdf_copy.explode()
-    else:
-        return gdf_copy
-
-
-def _return_affected_geoms(geoseries: GeoSeries,
-                           func: Callable) -> GeoSeries:
-    """
-    Function returns geometry features fetched by query func
-
-    Parameters
-    ----------
-    geoseries : GeoSeries
-    func : function
-        Function used to query geometries.
-
-    Returns
-    -------
-    geoseries : GeoSeries
-        GeoSeries with geometries
-        resulting from the query.
-
-    >>> geoseries = _return_affected_geoms(geoseries, func=_geom_with_interiors)
-    """
-    return geoseries[geoseries.apply(func)]
 
 
 """POLYGON'S EXTERIOR DUPLICATES"""
@@ -434,6 +248,11 @@ def linestring_duplicates(geoseries: GeoSeries) -> GeoSeries:
 
 
 """CONTINUITY"""
+
+
+# TODO add function that look for gaps in polygons
+def continuity():
+    pass
 
 
 # TODO check how geometry column has being named
