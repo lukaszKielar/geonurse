@@ -10,7 +10,7 @@ CONVERSION_DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'conversion')
 CONVERSION_SHP_DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'conversion', 'shp')
-UTLIS_DATA = os.path.join(
+UTILS_DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'utils')
 # UTILS_SHP_DATA = os.path.join(
 #     os.path.abspath(os.path.dirname(__file__)), 'data', 'utils', 'shp')
@@ -35,7 +35,7 @@ def expected_conversion():
 # TODO add more complex geometries
 @pytest.fixture
 def test_data_layer_precision():
-    gdf_path = os.path.join(UTLIS_DATA,
+    gdf_path = os.path.join(UTILS_DATA,
                             'test_data_layer_precision.geojson')
     gdf = read_file(gdf_path)
     return gdf.geometry
@@ -43,7 +43,7 @@ def test_data_layer_precision():
 
 @pytest.fixture
 def expected_layer_precision_3decimals():
-    gdf_path = os.path.join(UTLIS_DATA,
+    gdf_path = os.path.join(UTILS_DATA,
                             'expected_layer_precision_3decimals.geojson')
     gdf = read_file(gdf_path)
     return gdf.geometry
