@@ -5,7 +5,7 @@ sudo: false
 matrix:
   include:
     # Only one test for these Python versions
-    - env: ENV_FILE="ci/travis/linux_env"
+    - env: ENV_FILE="requirements/requirements_linux.txt"
 
 install:
   # Install conda
