@@ -2,6 +2,9 @@ from distutils.version import LooseVersion
 from pandas.testing import assert_series_equal
 import pandas as pd
 from geopandas import GeoSeries
+import pytest
+from shapely.geometry import Point, MultiPoint
+from shapely.geometry import Polygon, MultiPolygon
 
 from geonurse.conversion import extract_nodes
 from geonurse.conversion import _linestring_to_multipoint
@@ -11,6 +14,17 @@ if str(pd.__version__) < LooseVersion('0.23'):
     CONCAT_KWARGS = {}
 else:
     CONCAT_KWARGS = {'sort': False}
+
+
+@pytest.mark.parametrize("test_input,expected", [
+    (Point(0, 0), MultiPoint()),
+    (MultiPoint([Point(0, 0), Point(1, 0)]), MultiPoint()),
+    (Polygon([(0., 0.), (1., 1.), (2., 0.), (0., 0.)]), MultiPoint()),
+    (MultiPolygon([
+        Polygon([(0., 0.), (1., 1.), (2., 0.), (0., 0.)]),
+        Polygon([(3., 0.), (4., 1.), (5., 0.), (3., 0.)])]), MultiPoint())])
+def test_linestring_to_multipoint_points_assertions(test_input, expected):
+    assert _linestring_to_multipoint(test_input) == expected
 
 
 def test_extract_nodes(test_data_conversion, expected_conversion):
@@ -32,3 +46,18 @@ def test_extract_nodes(test_data_conversion, expected_conversion):
     assert_series_equal(extract_nodes_single_geoseries,
                         expected_qgis_geoseries,
                         check_index_type=False)
+
+
+def test_extract_nodes_assertions(expected_conversion, expected_overlaps):
+    point_geoseries = expected_conversion
+    _, polygon_geoseries = expected_overlaps
+    # point geoseries
+    with pytest.raises(NotImplementedError):
+        extract_nodes(point_geoseries, explode=False)
+    with pytest.raises(NotImplementedError):
+        extract_nodes(point_geoseries, explode=True)
+    # polygon geoseries
+    with pytest.raises(NotImplementedError):
+        extract_nodes(polygon_geoseries, explode=False)
+    with pytest.raises(NotImplementedError):
+        extract_nodes(polygon_geoseries, explode=True)

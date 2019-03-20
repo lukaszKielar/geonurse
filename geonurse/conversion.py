@@ -9,6 +9,7 @@ from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import MultiPoint
 
 
+# TODO raise NotImplementedError when not isinstance(LineString, MultiLineString)
 def _linestring_to_multipoint(geom: Union[LineString, MultiLineString]) -> MultiPoint:
     """
     Converts LineString/MultiLineString geometries into MultiPoints.
