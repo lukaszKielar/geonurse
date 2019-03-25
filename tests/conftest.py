@@ -12,8 +12,8 @@ CONVERSION_SHP_DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'conversion', 'shp')
 UTILS_DATA = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'data', 'utils')
-# UTILS_SHP_DATA = os.path.join(
-#     os.path.abspath(os.path.dirname(__file__)), 'data', 'utils', 'shp')
+UTILS_SHP_DATA = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'data', 'utils', 'shp')
 
 
 @pytest.fixture
@@ -47,6 +47,14 @@ def expected_layer_precision_3decimals():
                             'expected_layer_precision_3decimals.geojson')
     gdf = read_file(gdf_path)
     return gdf.geometry
+
+
+@pytest.fixture
+def test_data_na_countries():
+    gdf_path = os.path.join(UTILS_SHP_DATA,
+                            'naturalearth_admin_countries_50m.shp')
+    gdf = read_file(gdf_path)
+    return [gdf, gdf.geometry]
 
 
 @pytest.fixture

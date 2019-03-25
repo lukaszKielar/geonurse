@@ -95,8 +95,9 @@ def _katana(geometry: Union[Polygon, MultiPolygon],
     width = bounds[2] - bounds[0]
     height = bounds[3] - bounds[1]
     if max(width, height) <= threshold and count == 0:
-        warnings.warn("Polygon geometry hasn't been modified! Try to decrease threshold.",
-                      stacklevel=2)
+        warnings.warn(
+            "Polygon geometry hasn't been modified! Try to decrease threshold."
+        )
         # both the polygon is smaller than the threshold and count is set to 0
         return geometry
     elif max(width, height) <= threshold or count == 5:
