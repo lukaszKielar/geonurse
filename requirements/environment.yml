@@ -1,0 +1,29 @@
+name: geopython3
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - codecov=2.0.15
+  - coverage=4.5.3
+  - fiona=1.8.6
+  - gdal=2.4.0
+  - geopandas==0.4.1
+  - ipykernel=5.1.0
+  - jupyter=1.0.0
+  - mypy=0.670
+  - numpy=1.16.2
+  - pandas=0.24.2
+  - pylint=2.3.1
+  - pyspark=2.4.0
+  - pytest=4.3.1
+  - pytest-cov=2.6.1
+  - pytest-runner=4.4
+  - python=3.7
+  - rasterio=1.0.21
+  - requests=2.21.0
+  - rtree=0.8.3
+  - shapely=1.6.4
+  - tqdm=4.31.1
+  - typing=3.6.4
+  - pip:
+    - geopyspark==0.4.3

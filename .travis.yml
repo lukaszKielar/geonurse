@@ -9,10 +9,17 @@ branches:
 matrix:
   include:
     # Only one test for these Python versions
-    - env: ENV_FILE="requirements/requirements_linux.txt"
+    - env: ENV_FILE="requirements/environment.yml"
 
-install:
-  # Install conda
+before_install:
+  # Download and install Spark
+  - wget https://www-eu.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz
+  - tar xvf spark-2.4.0-bin-hadoop2.7.tgz
+  - export SPARK_HOME="$HOME/spark-2.4.0-bin-hadoop2.7"
+  - export PYTHONPATH="$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:$PYTHONPATH"
+  - export PATH="$SPARK_HOME/bin:$PATH"
+  - export SPARK_LOCAL_IP="127.0.0.1"
+  # Download and install conda
   - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
@@ -21,11 +28,13 @@ install:
   - conda config --add channels anaconda
   - conda config --add channels conda-forge
 
-  # Install dependencies
-  # - conda env create --file="${ENV_FILE}"
-  - conda create --name test --file "${ENV_FILE}"
-  - source activate test
+install:
+  # Create environment
+  - conda env create --file="${ENV_FILE}"
+  - source activate geopython3
+  - export PYSPARK_PYTHON="$HOME/miniconda/envs/geopython3/bin/python"
   - pip install -e .
+  - geopyspark install-jar
   - conda list
 
 script:
