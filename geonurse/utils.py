@@ -12,6 +12,22 @@ def _round_coords(geom,
     """
     Function rounds coordinates for geometries.
 
+    Parameters
+    ----------
+    geom : Point, MultiPoint, LineString, MultiLineString, Polygon or MultiPolygon
+    precision : int, default 7
+        Number of decimal places to which
+        the coordinates will be rounded.
+
+    Returns
+    -------
+    GeoSeries
+        GeoSeries with geometries
+        resulting from rounding.
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
     """
     def _new_coords(coords,
@@ -43,10 +59,13 @@ def set_precision(geoseries: GeoSeries,
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with geometries
         resulting from rounding.
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = set_precision(geoseries, precision=3)
     """
     geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
@@ -89,6 +108,9 @@ def _katana(geometry: Union[Polygon, MultiPolygon],
 
     Split a Polygon into two parts across it's shortest dimension
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = geoseries.apply(_katana, args=(threshold, count))
     """
     bounds = geometry.bounds
@@ -151,10 +173,13 @@ def _layer_katana(geoseries: GeoSeries,
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with new set of geometries
         resulting from the conversion
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _layer_katana(geoseries, threshold=100, explode=False)
     """
     if not all(isinstance(geom, (Polygon, MultiPolygon)) for geom in geoseries):
@@ -180,10 +205,13 @@ def _return_affected_geoms(geoseries: GeoSeries,
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with geometries
         resulting from the query.
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _return_affected_geoms(geoseries, func=_geom_with_interiors)
     """
     return geoseries[geoseries.apply(func)]
@@ -204,8 +232,11 @@ def _zero_buffer(geoseries: GeoSeries) -> GeoSeries:
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _zero_buffer(geoseries)
     """
     geoseries = geoseries.apply(lambda x: x.buffer(0))
@@ -225,8 +256,11 @@ def fix_geometry(geoseries: GeoSeries) -> GeoSeries:
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = fix_geometry(geoseries)
     """
     if not all(geoseries.is_valid):

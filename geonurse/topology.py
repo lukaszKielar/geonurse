@@ -2,10 +2,11 @@
 
 from typing import Union
 
-from geonurse.utils import _return_affected_geoms, set_precision
+from geonurse.utils import _return_affected_geoms, set_precision, _layer_katana
 
 from collections import Counter
 import numpy as np
+import pandas as pd
 from functools import reduce
 from operator import add
 from shapely.geometry import MultiPoint
@@ -24,6 +25,19 @@ def _exterior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
     It returns True/False whether polygon's exterior has/hasn't
     duplicated vertices.
 
+    Parameters
+    ----------
+    geom : Polygon or MultiPolygon
+
+    Returns
+    -------
+    GeoSeries
+        GeoSeries with MultiPoint geometries and
+        attributes resulting from exterior checking.
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _return_affected_geoms(geoseries, func=_exterior_duplicates_bool)
     """
     if isinstance(geom, MultiPolygon):
@@ -41,11 +55,29 @@ def _exterior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
 
 def _return_duplicated_exterior_coords(geom: Union[Polygon, MultiPolygon]) -> list:
     """
-    Function returns list of points duplicated on polygon's exterior
+    Function returns list of duplicated points on polygon's exterior
+
+    Parameters
+    ----------
+    geom : Polygon or MultiPolygon
+
+    Returns
+    -------
+    list of Points
+
+    Examples
+    --------
+    GeoPandas:
+    >>> geoseries = geoseries.apply(_return_duplicated_exterior_coords)
+
+    GeoPySpark:
+    >>> input_rdd = geopyspark.geotools.shapefile.get("path/to/shapefile.shp")
+    >>> output_rdd = input_rdd.map(lambda x: _return_duplicated_exterior_coords(getattr(x, 'geometry')))
     """
     if isinstance(geom, MultiPolygon):
-        error_coords = reduce(add,
-                              [_return_duplicated_exterior_coords(polygon) for polygon in geom])
+        error_coords = reduce(
+            add, [_return_duplicated_exterior_coords(polygon) for polygon in geom]
+        )
         return error_coords
     else:
         # slice list to get rid of first point which has
@@ -71,10 +103,13 @@ def exterior_duplicates(geoseries: GeoSeries) -> GeoSeries:
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with MultiPoint geometries and
         attributes resulting from exterior checking.
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = exterior_duplicates(geoseries)
     """
     geoseries = _return_affected_geoms(geoseries, func=_exterior_duplicates_bool)
@@ -85,11 +120,23 @@ def exterior_duplicates(geoseries: GeoSeries) -> GeoSeries:
 """POLYGON'S INTERIOR DUPLICATES"""
 
 
+# TODO check how if rdd.filter deals with it
 def _geom_with_interiors(geom: Union[Polygon, MultiPolygon]) -> bool:
     """
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether polygon has/hasn't interior(s).
 
+    Parameters
+    ----------
+    geom : Polygon or MultiPolygon
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _return_affected_geoms(geoseries, func=_geom_with_interiors)
     """
     if isinstance(geom, MultiPolygon):
@@ -106,6 +153,17 @@ def _interior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
     Function used as an func argument in _return_affected_geoms.
     It returns True/False whether polygon has/hasn't duplicated interior vertices.
 
+    Parameters
+    ----------
+    geom : Polygon or MultiPolygon
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _return_affected_geoms(geoseries, func=_interior_duplicates_bool)
     """
     if isinstance(geom, MultiPolygon):
@@ -123,6 +181,19 @@ def _interior_duplicates_bool(geom: Union[Polygon, MultiPolygon]) -> bool:
 def _return_duplicated_interior_coords(geom: Union[Polygon, MultiPolygon]) -> list:
     """
     Function returns list of points duplicated on polygon's interior
+
+    Parameters
+    ----------
+    geom : Polygon or MultiPolygon
+
+    Returns
+    -------
+    list of Points
+
+    Examples
+    --------
+    GeoPandas:
+    >>> geoseries = geoseries.apply(_return_duplicated_interior_coords)
     """
     if isinstance(geom, MultiPolygon):
         error_coords = reduce(add,
@@ -162,10 +233,13 @@ def interior_duplicates(geoseries: GeoSeries) -> GeoSeries:
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with MultiPoint geometries and
         attributes resulting from interior checking.
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = interior_duplicates(geoseries)
     """
     geoseries = _return_affected_geoms(geoseries, func=_geom_with_interiors)
@@ -183,6 +257,17 @@ def _linestring_duplicates_bool(geom: Union[LineString, MultiLineString]) -> boo
     It returns True/False whether (multi)linestring
     has/hasn't duplicated vertices.
 
+    Parameters
+    ----------
+    geom : LineString or MultiLineString
+
+    Returns
+    -------
+    bool
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = _return_affected_geoms(geoseries, func=_linestring_duplicates_bool)
     """
     if isinstance(geom, MultiLineString):
@@ -204,6 +289,19 @@ def _linestring_duplicates_bool(geom: Union[LineString, MultiLineString]) -> boo
 def _return_duplicated_linestring_coords(geom: Union[LineString, MultiLineString]) -> list:
     """
     Function returns list of duplicated linestring points
+
+    Parameters
+    ----------
+    geom : LineString or MultiLineString
+
+    Returns
+    -------
+    list of Points
+
+    Examples
+    --------
+    GeoPandas:
+    >>> geoseries = geoseries.apply(_return_duplicated_interior_coords)
     """
     if isinstance(geom, MultiLineString):
         error_coords = reduce(add,
@@ -236,10 +334,13 @@ def linestring_duplicates(geoseries: GeoSeries) -> GeoSeries:
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with MultiPoint geometries and
         attributes resulting from linestring checking.
 
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = linestring_duplicates(geoseries)
     """
     geoseries = _return_affected_geoms(geoseries, func=_linestring_duplicates_bool)
@@ -274,8 +375,11 @@ def overlaps(geoseries: GeoSeries,
 
     Returns
     -------
-    gdf : GeoDataFrame
+    GeoDataFrame
 
+    Examples
+    --------
+    GeoPandas:
     >>> gdf = overlaps(geoseries, precision=7)
     """
     geoseries = set_precision(geoseries, precision=precision)
@@ -312,3 +416,92 @@ def overlaps(geoseries: GeoSeries,
     gdf.reset_index(drop=True, inplace=True)
 
     return gdf
+
+
+# TODO add error column to the output geodataframe
+# TODO do multigeometries should be treated as invalid?
+def check_polygon_topology(geoseries: GeoSeries,
+                           split_layer: bool = False) -> GeoDataFrame:
+
+    if split_layer:
+        geoseries = _layer_katana(geoseries)
+
+    duplicated_exterior_geoms = _return_affected_geoms(
+        geoseries, func=_exterior_duplicates_bool
+    )
+
+    duplicated_interior_geoms = _return_affected_geoms(
+        geoseries, func=_interior_duplicates_bool
+    )
+
+    invalid_geoms = geoseries[~geoseries.is_valid]
+
+    # multi_geoms = ...
+
+    crossed_geoms = geoseries[~geoseries.is_simple]
+
+    error_gdf = GeoDataFrame(
+        pd.concat(
+            [duplicated_exterior_geoms, duplicated_interior_geoms, invalid_geoms, crossed_geoms]
+        )
+    )
+
+    return error_gdf
+
+    # TODO think what is the best way to return those geometries
+    # if len(duplicated_exterior_geoms) > 0:
+    #     duplicated_exterior_points = exterior_duplicates(duplicated_exterior_geoms)
+    #
+    # if len(duplicated_interior_geoms) > 0:
+    #     duplicated_interior_points = interior_duplicates(duplicated_interior_geoms)
+
+
+# TODO add error column to the output geodataframe
+# TODO do multigeometries should be treated as invalid?
+def check_polyline_topology(geoseries: GeoSeries) -> GeoDataFrame:
+
+    duplicated_geoms = _return_affected_geoms(
+        geoseries, func=_linestring_duplicates_bool
+    )
+
+    invalid_geoms = geoseries[~geoseries.is_valid]
+
+    # multi_geoms = ...
+
+    crossed_geoms = geoseries[~geoseries.is_simple]
+
+    error_gdf = gpd.GeoDataFrame(
+        pd.concat(
+            [duplicated_geoms, invalid_geoms, crossed_geoms]
+        )
+    )
+
+    return error_gdf
+
+    # TODO think what is the best way to return those geometries
+    # if len(duplicated_geoms) > 0:
+    #     duplicated_point_geoms = linestring_duplicates(duplicated_geoms)
+
+
+# TODO add error column to the output geodataframe
+# TODO do multigeometries should be treated as invalid?
+def check_point_topology(geoseries: GeoSeries) -> GeoDataFrame:
+
+    # TODO add SCALABLE function which looks for duplicates
+    # duplicated_geoms = _return_affected_geoms(
+    #     geoseries, func=_point_duplicates_bool
+    # )
+
+    duplicated_geoms = GeoSeries()
+
+    invalid_geoms = geoseries[~geoseries.is_valid]
+
+    # multi_geoms = ...
+
+    error_gdf = GeoDataFrame(
+        pd.concat(
+            [duplicated_geoms, invalid_geoms]
+        )
+    )
+
+    return error_gdf

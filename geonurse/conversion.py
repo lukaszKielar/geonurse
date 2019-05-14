@@ -15,7 +15,22 @@ def _linestring_to_multipoint(geom: Union[LineString, MultiLineString]) -> Multi
     Converts LineString/MultiLineString geometries into MultiPoints.
     Function used as an apply function on GeoSeries.
 
+    Parameters
+    ----------
+    geom : LineString or MultiLineString
+
+    Returns
+    -------
+    MultiPoint
+
+    Examples
+    --------
+    GeoPandas:
     >>> geoseries = geoseries.apply(_linestring_to_multipoint)
+
+    GeoPySpark:
+    >>> input_rdd = geopyspark.geotools.shapefile.get("path/to/shapefile.shp")
+    >>> output_rdd = input_rdd.map(lambda x: _linestring_to_multipoint(getattr(x, 'geometry')))
     """
     if isinstance(geom, MultiLineString):
         coords = reduce(add, [list(linestring.coords) for linestring in geom])
@@ -43,9 +58,14 @@ def extract_nodes(geoseries: GeoSeries,
 
     Returns
     -------
-    geoseries : GeoSeries
+    GeoSeries
         GeoSeries with new set of geometries
         resulting from the conversion
+
+    Examples
+    --------
+    GeoPandas:
+    >>> geoseries = extract_nodes(geoseries, explode=False)
     """
     if not all(isinstance(geom, (LineString, MultiLineString)) for geom in geoseries):
         raise NotImplementedError("All geometries have to be line objects")
