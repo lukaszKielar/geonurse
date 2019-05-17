@@ -69,10 +69,6 @@ def _return_duplicated_exterior_coords(geom: Union[Polygon, MultiPolygon]) -> li
     --------
     GeoPandas:
     >>> geoseries = geoseries.apply(_return_duplicated_exterior_coords)
-
-    GeoPySpark:
-    >>> input_rdd = geopyspark.geotools.shapefile.get("path/to/shapefile.shp")
-    >>> output_rdd = input_rdd.map(lambda x: _return_duplicated_exterior_coords(getattr(x, 'geometry')))
     """
     if isinstance(geom, MultiPolygon):
         error_coords = reduce(

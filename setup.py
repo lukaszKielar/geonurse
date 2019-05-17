@@ -114,6 +114,7 @@ setup(
     tests_require=[
         'pytest',
         'pytest-cov',
+        'pytest-runner'
     ],
     cmdclass={
         'clean': CleanCommand,

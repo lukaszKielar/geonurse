@@ -31,10 +31,8 @@ before_install:
 install:
   # Create environment
   - conda env create --file="${ENV_FILE}"
-  - source activate geopython3
-  - export PYSPARK_PYTHON="$HOME/miniconda/envs/geopython3/bin/python"
-  - pip install -e .
-  - geopyspark install-jar
+  - source activate geonurse
+  - export PYSPARK_PYTHON="$HOME/miniconda/envs/geonurse/bin/python"
   - conda list
 
 script:

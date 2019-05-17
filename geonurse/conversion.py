@@ -27,10 +27,6 @@ def _linestring_to_multipoint(geom: Union[LineString, MultiLineString]) -> Multi
     --------
     GeoPandas:
     >>> geoseries = geoseries.apply(_linestring_to_multipoint)
-
-    GeoPySpark:
-    >>> input_rdd = geopyspark.geotools.shapefile.get("path/to/shapefile.shp")
-    >>> output_rdd = input_rdd.map(lambda x: _linestring_to_multipoint(getattr(x, 'geometry')))
     """
     if isinstance(geom, MultiLineString):
         coords = reduce(add, [list(linestring.coords) for linestring in geom])
