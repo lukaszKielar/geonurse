@@ -6,8 +6,8 @@ import pytest
 from shapely.geometry import Point, MultiPoint
 from shapely.geometry import Polygon, MultiPolygon
 
-from geonurse.conversion import extract_nodes
-from geonurse.conversion import _linestring_to_multipoint
+from geonurse.tools.conversion import extract_nodes
+from geonurse.tools.conversion import _linestring_to_multipoint
 
 
 if str(pd.__version__) < LooseVersion('0.23'):
@@ -27,9 +27,9 @@ def test_linestring_to_multipoint_points_assertions(test_input, expected):
     assert _linestring_to_multipoint(test_input) == expected
 
 
-def test_extract_nodes(test_data_conversion, expected_conversion):
-    input_geoseries = test_data_conversion
-    expected_qgis_geoseries = expected_conversion
+def test_extract_nodes(test_data_conversion_gdf, expected_conversion_gdf):
+    input_geoseries = test_data_conversion_gdf
+    expected_qgis_geoseries = expected_conversion_gdf
     extract_nodes_multi_geoseries = extract_nodes(input_geoseries, explode=False)
     assert len(input_geoseries) == len(extract_nodes_multi_geoseries) == 462
     extract_nodes_single_geoseries = (
@@ -48,9 +48,9 @@ def test_extract_nodes(test_data_conversion, expected_conversion):
                         check_index_type=False)
 
 
-def test_extract_nodes_assertions(expected_conversion, expected_overlaps):
-    point_geoseries = expected_conversion
-    _, polygon_geoseries = expected_overlaps
+def test_extract_nodes_assertions(expected_conversion_gdf, expected_overlaps_gdf):
+    point_geoseries = expected_conversion_gdf
+    _, polygon_geoseries = expected_overlaps_gdf
     # point geoseries
     with pytest.raises(NotImplementedError):
         extract_nodes(point_geoseries, explode=False)

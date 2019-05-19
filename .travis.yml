@@ -12,13 +12,6 @@ matrix:
     - env: ENV_FILE="requirements/environment.yml"
 
 before_install:
-  # Download and install Spark
-  - wget https://archive.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz
-  - tar xvf spark-2.4.0-bin-hadoop2.7.tgz
-  - export SPARK_HOME="$HOME/spark-2.4.0-bin-hadoop2.7"
-  - export PYTHONPATH="$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:$PYTHONPATH"
-  - export PATH="$SPARK_HOME/bin:$PATH"
-  - export SPARK_LOCAL_IP="127.0.0.1"
   # Download and install conda
   - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
@@ -33,6 +26,7 @@ install:
   - conda env create --file="${ENV_FILE}"
   - source activate geonurse
   - export PYSPARK_PYTHON="$HOME/miniconda/envs/geonurse/bin/python"
+  - export PATH="$PYSPARK_PYTHON:$PATH"
   - conda list
 
 script:
