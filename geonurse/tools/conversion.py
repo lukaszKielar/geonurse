@@ -1,12 +1,9 @@
 from typing import Union
-
-from functools import reduce
 from operator import add
-
+from functools import reduce
 from geopandas import GeoSeries
-
-from shapely.geometry import LineString, MultiLineString
 from shapely.geometry import MultiPoint
+from shapely.geometry import LineString, MultiLineString
 
 
 # TODO raise NotImplementedError when not isinstance(LineString, MultiLineString)
@@ -27,6 +24,12 @@ def _linestring_to_multipoint(geom: Union[LineString, MultiLineString]) -> Multi
     --------
     GeoPandas:
     >>> geoseries = geoseries.apply(_linestring_to_multipoint)
+
+    Geonurse:
+    >>> import geonurse
+    >>> geoRdd = geonurse.read_file(spark, data)
+    >>> geometry_rdd = geoRdd.geometries('shapely')
+    >>> line_to_point_rdd = geometry_rdd.map(lambda x: geonurse.tools.conversion._linestring_to_multipoint(x))
     """
     if isinstance(geom, MultiLineString):
         coords = reduce(add, [list(linestring.coords) for linestring in geom])

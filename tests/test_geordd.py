@@ -1,4 +1,4 @@
-from geonurse.base import GeoRDD
+from geonurse.geordd import GeoRDD
 
 
 class Test_GeoRDD:
@@ -8,4 +8,6 @@ class Test_GeoRDD:
                   test_data_conversion_fiona):
         rdd = spark_context.parallelize(test_data_conversion_fiona)
         geoRdd = GeoRDD(rdd)
+
         assert geoRdd.count() == 462
+        assert isinstance(geoRdd, GeoRDD)

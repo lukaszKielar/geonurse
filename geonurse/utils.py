@@ -1,14 +1,12 @@
-from typing import Union, List, Callable
-
 import warnings
+from typing import Union, List, Callable
 from geopandas import GeoSeries
 from shapely.geometry import box, mapping, shape
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.geometry import GeometryCollection
 
 
-def _round_coords(geom,
-                  precision: int = 7):
+def _round_coords(geom, precision: int = 7):
     """
     Function rounds coordinates for geometries.
 
@@ -44,8 +42,7 @@ def _round_coords(geom,
     return shape(geojson)
 
 
-def set_precision(geoseries: GeoSeries,
-                  precision: int = 7) -> GeoSeries:
+def set_precision(geoseries: GeoSeries, precision: int = 7) -> GeoSeries:
     """
     Function returns geoseries with
     geometries that has rounded coordinates
@@ -192,8 +189,7 @@ def _layer_katana(geoseries: GeoSeries,
         return geoseries
 
 
-def _return_affected_geoms(geoseries: GeoSeries,
-                           func: Callable) -> GeoSeries:
+def _return_affected_geoms(geoseries: GeoSeries, func: Callable) -> GeoSeries:
     """
     Function returns geometry features fetched by query func
 

@@ -1,19 +1,17 @@
 # TODO create separate modules for specific types of geometries
 
 from typing import Union
-
-from geonurse.utils import _return_affected_geoms, set_precision, _layer_katana
-
+from operator import add
+from functools import reduce
 from collections import Counter
 import numpy as np
 import pandas as pd
-from functools import reduce
-from operator import add
-from shapely.geometry import MultiPoint
-from shapely.geometry import LineString, MultiLineString
-from shapely.geometry import Polygon, MultiPolygon
 import geopandas as gpd
 from geopandas import GeoDataFrame, GeoSeries
+from shapely.geometry import MultiPoint
+from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import LineString, MultiLineString
+from geonurse.utils import _return_affected_geoms, set_precision, _layer_katana
 
 
 """POLYGON'S EXTERIOR DUPLICATES"""

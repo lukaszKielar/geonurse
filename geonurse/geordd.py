@@ -1,13 +1,13 @@
 import shapely.geometry
-
-from pyspark.rdd import RDD
-from pyspark.sql.types import StringType
+import pyspark.rdd
 import pyspark.sql.functions as F
+from pyspark.sql.types import StringType
+import geonurse.geodataframe
 
 
-class GeoRDD(RDD):
+class GeoRDD(pyspark.rdd.RDD):
     
-    def __init__(self, rdd: RDD) -> None:
+    def __init__(self, rdd: pyspark.rdd.RDD) -> None:
         super().__init__(jrdd=rdd._jrdd, ctx=rdd.ctx, jrdd_deserializer=rdd._jrdd_deserializer)
 
     @property
@@ -59,8 +59,9 @@ class GeoRDD(RDD):
         geometries_df = self._geometry_df.withColumn('id', F.monotonically_increasing_id())
         properties_df = self._property_df.withColumn('id', F.monotonically_increasing_id())
 
-        return (
+        df = (
             properties_df.join(geometries_df, properties_df.id == geometries_df.id, 'inner')
                 .drop(geometries_df.id)
                 .sort(F.col('id').asc())  # pylint: disable=no-member
         )
+        return geonurse.geodataframe.GeoDataFrame(df)
