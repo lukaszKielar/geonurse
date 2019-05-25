@@ -1,0 +1,16 @@
+{
+"type": "FeatureCollection",
+"name": "expected_linestring_duplicates",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "descriptio": "line1 dupl", "id": 3, "vertex_ind": 2, "vertex_par": 0, "vertex_p_1": 2, "distance": 6.0, "angle": 90.0 }, "geometry": { "type": "Point", "coordinates": [ -10.41666666666667, 9.825 ] } },
+{ "type": "Feature", "properties": { "descriptio": "line1 ring 1dupl", "id": 4, "vertex_ind": 2, "vertex_par": 0, "vertex_p_1": 2, "distance": 6.0, "angle": 90.0 }, "geometry": { "type": "Point", "coordinates": [ -16.129166666666684, 9.883333333333336 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 1left dupl", "id": 6, "vertex_ind": 3, "vertex_par": 0, "vertex_p_1": 3, "distance": 6.0, "angle": 135.0 }, "geometry": { "type": "Point", "coordinates": [ 1.775, 15.19166666666667 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 1left 1right dupl", "id": 7, "vertex_ind": 3, "vertex_par": 0, "vertex_p_1": 3, "distance": 6.0, "angle": 135.0 }, "geometry": { "type": "Point", "coordinates": [ -6.858333333333334, 15.191666666666668 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 1left 1right dupl", "id": 7, "vertex_ind": 9, "vertex_par": 1, "vertex_p_1": 3, "distance": 18.0, "angle": 135.0 }, "geometry": { "type": "Point", "coordinates": [ -2.858333333333334, 15.191666666666668 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 2left 2right dupl", "id": 8, "vertex_ind": 2, "vertex_par": 0, "vertex_p_1": 2, "distance": 3.0, "angle": 90.0 }, "geometry": { "type": "Point", "coordinates": [ -19.13333333333334, 15.191666666666668 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 2left 2right dupl", "id": 8, "vertex_ind": 4, "vertex_par": 0, "vertex_p_1": 4, "distance": 6.0, "angle": 135.0 }, "geometry": { "type": "Point", "coordinates": [ -16.13333333333334, 15.191666666666668 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 2left 2right dupl", "id": 8, "vertex_ind": 8, "vertex_par": 1, "vertex_p_1": 2, "distance": 12.0, "angle": 90.0 }, "geometry": { "type": "Point", "coordinates": [ -15.13333333333334, 15.191666666666668 ] } },
+{ "type": "Feature", "properties": { "descriptio": "mpoly 2left 2right dupl", "id": 8, "vertex_ind": 10, "vertex_par": 1, "vertex_p_1": 4, "distance": 15.0, "angle": 135.0 }, "geometry": { "type": "Point", "coordinates": [ -12.13333333333334, 15.191666666666668 ] } }
+]
+}

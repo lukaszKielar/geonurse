@@ -28,8 +28,7 @@ def _round_coords(geom, precision: int = 7):
     GeoPandas:
     >>> geoseries = geoseries.apply(lambda geom: _round_coords(geom, precision))
     """
-    def _new_coords(coords,
-                    precision: int):
+    def _new_coords(coords, precision: int):
         new_coords = []
         try:
             return round(coords, int(precision))
@@ -69,7 +68,6 @@ def set_precision(geoseries: GeoSeries, precision: int = 7) -> GeoSeries:
     return geoseries
 
 
-# TODO check if output geometry area is the same as before katana
 def _katana(geometry: Union[Polygon, MultiPolygon],
             threshold: int = 100,
             count: int = 0) -> MultiPolygon:
@@ -156,7 +154,7 @@ def _layer_katana(geoseries: GeoSeries,
                   explode: bool = False) -> GeoSeries:
     """
     Function allows to split individual Polygon geometries
-    in GeoDataFrame across it's shorter dimension.
+    presented in GeoSeries across it's shorter dimension.
 
     Parameters
     ----------
@@ -180,7 +178,7 @@ def _layer_katana(geoseries: GeoSeries,
     >>> geoseries = _layer_katana(geoseries, threshold=100, explode=False)
     """
     if not all(isinstance(geom, (Polygon, MultiPolygon)) for geom in geoseries):
-        raise NotImplementedError("All geometries have to be line objects")
+        raise NotImplementedError("All geometries have to be polygon or multipolygon objects")
     count = 0
     geoseries = geoseries.apply(_katana, args=(threshold, count))
     if explode:
@@ -189,7 +187,7 @@ def _layer_katana(geoseries: GeoSeries,
         return geoseries
 
 
-def _return_affected_geoms(geoseries: GeoSeries, func: Callable) -> GeoSeries:
+def return_affected_geoms(geoseries: GeoSeries, func: Callable) -> GeoSeries:
     """
     Function returns geometry features fetched by query func
 
@@ -208,7 +206,7 @@ def _return_affected_geoms(geoseries: GeoSeries, func: Callable) -> GeoSeries:
     Examples
     --------
     GeoPandas:
-    >>> geoseries = _return_affected_geoms(geoseries, func=_geom_with_interiors)
+    >>> geoseries = return_affected_geoms(geoseries, func=has_interior)
     """
     return geoseries[geoseries.apply(func)]
 

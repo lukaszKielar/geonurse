@@ -3,11 +3,8 @@ from geonurse.geordd import GeoRDD
 
 class Test_GeoRDD:
 
-    def test_init(self,
-                  spark_context,
-                  test_data_conversion_fiona):
-        rdd = spark_context.parallelize(test_data_conversion_fiona)
+    def test_init(self, spark_context, test_data_geordd):
+        rdd = spark_context.parallelize(test_data_geordd)
         geoRdd = GeoRDD(rdd)
 
-        assert geoRdd.count() == 462
         assert isinstance(geoRdd, GeoRDD)
