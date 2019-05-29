@@ -41,9 +41,8 @@ class GeoRDD(pyspark.rdd.RDD):
         raise NotImplementedError("Unknown return geometry_type: %s.", geometry_type)
 
     def properties(self):
-
         def _replace_none_dict_values(in_dict):
-            return {k:(v if v is not None else 'No Data') for k, v in in_dict.items()}
+            return {k: (v if v is not None else 'No Data') for k, v in in_dict.items()}
         # replace any None values in the output dict
         return self._properties.map(lambda x: _replace_none_dict_values(x))
 
@@ -55,7 +54,7 @@ class GeoRDD(pyspark.rdd.RDD):
     def _property_df(self):
         return self.properties().toDF()
 
-    def toGeoDF(self):
+    def toGeoDF(self) -> geonurse.geodataframe.GeoDataFrame:
         geometries_df = self._geometry_df.withColumn('id', F.monotonically_increasing_id())
         properties_df = self._property_df.withColumn('id', F.monotonically_increasing_id())
 

@@ -6,7 +6,7 @@ import geonurse.geordd
 
 class GeoDataFrame(pyspark.sql.DataFrame):
 
-    def __init__(self, df: pyspark.sql.DataFrame):
+    def __init__(self, df: pyspark.sql.DataFrame) -> None:
         super().__init__(df._jdf, df.sql_ctx)
 
     @property

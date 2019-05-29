@@ -10,6 +10,7 @@ class Test_GeoDataFrame:
     def test_init(self, spark_session, test_data_geodataframe_path):
         geoDf = geonurse.read_file(spark_session, test_data_geodataframe_path).toGeoDF()
 
+        assert geoDf.count() > 0
         assert isinstance(geoDf, GeoDataFrame)
 
     def test_geoRdd(self, spark_session, test_data_geodataframe_path):
@@ -20,6 +21,7 @@ class Test_GeoDataFrame:
                 .geoRdd
         )
 
+        assert geoRdd.count() > 0
         assert isinstance(geoRdd, GeoRDD)
 
     def test_toGeoPandas(self, spark_session, test_data_geodataframe_path):
@@ -30,4 +32,5 @@ class Test_GeoDataFrame:
                 .toGeoPandas()
         )
 
+        assert len(gdf) > 0
         assert isinstance(gdf, geopandas.GeoDataFrame)

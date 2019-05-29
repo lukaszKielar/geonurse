@@ -3,6 +3,7 @@ import sys
 import fiona
 import pytest
 import pyspark
+import geonurse
 
 
 DATA_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
@@ -48,3 +49,16 @@ def test_data_geordd(test_data_geodataframe_path):
     shp = fiona.open(test_data_geodataframe_path)
     yield shp
     shp.close()
+
+
+@pytest.fixture
+def input_polygon_geordd(test_data_geodataframe_path):
+    spark = (
+        pyspark.sql.SparkSession
+            .builder
+            .master('local[*]')
+            .appName('geonurse unit tests')
+            .getOrCreate()
+    )
+    yield geonurse.read_file(spark, test_data_geodataframe_path)
+    spark.stop()
