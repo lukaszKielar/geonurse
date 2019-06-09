@@ -12,6 +12,7 @@ class Test_GeoDataFrame:
 
         assert geoDf.count() > 0
         assert isinstance(geoDf, GeoDataFrame)
+        assert 'geometry' in geoDf.columns
 
     def test_geoRdd(self, spark_session, test_data_geodataframe_path):
         geoRdd = (
