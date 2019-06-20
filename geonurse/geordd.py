@@ -1,7 +1,8 @@
 import shapely.geometry
+import shapely.wkb
 import pyspark.rdd
 import pyspark.sql.functions as F
-from pyspark.sql.types import StringType
+from pyspark.sql import Row
 import geonurse.geodataframe
 
 
@@ -31,6 +32,10 @@ class GeoRDD(pyspark.rdd.RDD):
     def _as_wkt(self):
         return self._as_shapely.map(lambda x: x.wkt)
 
+    @property
+    def _as_wkb(self):
+        return self._as_shapely.map(lambda x: shapely.wkb.dumps(x))
+
     def geometries(self, geometry_type: str = 'geoJson'):
         if geometry_type == 'geoJson':
             return self._as_geoJson
@@ -38,6 +43,8 @@ class GeoRDD(pyspark.rdd.RDD):
             return self._as_shapely
         elif geometry_type == 'wkt':
             return self._as_wkt
+        elif geometry_type == 'wkb':
+            return self._as_wkb
         raise NotImplementedError("Unknown return geometry_type: %s.", geometry_type)
 
     def properties(self):
@@ -46,21 +53,25 @@ class GeoRDD(pyspark.rdd.RDD):
         # replace any None values in the output dict
         return self._properties.map(lambda x: _replace_none_dict_values(x))
 
-    @property
-    def _geometry_df(self):
-        return self.geometries('wkt').toDF(StringType()).selectExpr('value as geometry')
+    def _geometry_df(self, method='wkt'):
+        if method == 'wkt':
+            return (self.geometries('wkt')
+                        .map(Row)
+                        .toDF(['geometry']))
+        elif method == 'wkb':
+            return (self.geometries('wkb')
+                        .map(lambda x: bytearray(x))
+                        .map(Row)
+                        .toDF(['geometry']))
+        raise ValueError("{} method is not available".format(method))
 
-    @property
     def _property_df(self):
         return self.properties().toDF()
 
-    def toGeoDF(self) -> geonurse.geodataframe.GeoDataFrame:
-        geometries_df = self._geometry_df.withColumn('id', F.monotonically_increasing_id())
-        properties_df = self._property_df.withColumn('id', F.monotonically_increasing_id())
-
-        df = (
-            properties_df.join(geometries_df, properties_df.id == geometries_df.id, 'inner')
-                .drop(geometries_df.id)
-                .sort(F.col('id').asc())  # pylint: disable=no-member
-        )
+    def toGeoDF(self, method='wkt') -> geonurse.geodataframe.GeoDataFrame:
+        geometries_df = self._geometry_df(method=method).withColumn('id', F.monotonically_increasing_id())
+        properties_df = self._property_df().withColumn('id', F.monotonically_increasing_id())
+        df = (properties_df
+                  .join(geometries_df, properties_df.id == geometries_df.id, 'inner')
+                  .drop(geometries_df.id))
         return geonurse.geodataframe.GeoDataFrame(df)
