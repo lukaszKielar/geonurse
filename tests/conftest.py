@@ -62,3 +62,13 @@ def input_polygon_geordd(test_data_geodataframe_path):
     )
     yield geonurse.read_file(spark, test_data_geodataframe_path)
     spark.stop()
+
+
+@pytest.fixture
+def input_polygon_geodf_wkt(input_polygon_geordd):
+    yield input_polygon_geordd.toGeoDF('wkt')
+
+
+@pytest.fixture
+def input_polygon_geodf_wkb(input_polygon_geordd):
+    yield input_polygon_geordd.toGeoDF('wkb')
