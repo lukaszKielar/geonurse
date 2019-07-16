@@ -1,7 +1,7 @@
 import pytest
 from shapely.geometry import Polygon, MultiPolygon
 from pyspark.rdd import RDD, PipelinedRDD
-from pyspark.sql.types import StringType
+from pyspark.sql.types import StringType, BinaryType
 from pyspark.sql import DataFrame
 from geonurse.geordd import GeoRDD
 from geonurse.geodataframe import GeoDataFrame
@@ -83,13 +83,14 @@ class Test_GeoRDD:
         properties = input_polygon_geordd.properties()
         assert properties.count() == input_polygon_geordd.count()
 
-    @pytest.mark.parametrize('method', ['wkt', 'wkb'])
-    def test__geometry_df(self, input_polygon_geordd, method):
+    @pytest.mark.parametrize('method,data_type', [('wkt', StringType),
+                                                  ('wkb', BinaryType)])
+    def test__geometry_df(self, input_polygon_geordd, method, data_type):
         df = input_polygon_geordd._geometry_df(method=method)
         schema = df.schema
         assert df.count() > 0
         assert df.count() == input_polygon_geordd.count()
-        assert isinstance(schema.fields[0].dataType, StringType)
+        assert isinstance(schema.fields[0].dataType, data_type)
         assert schema.fields[0].name == 'geometry'
         assert df.columns == ['geometry']
         assert isinstance(df, DataFrame)

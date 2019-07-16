@@ -12,6 +12,7 @@ class Test_GeoDataFrame:
         geoDf = geonurse.read_file(spark_session, test_data_geodataframe_path).toGeoDF()
         assert geoDf.count() > 0
         assert isinstance(geoDf, GeoDataFrame)
+        assert 'geometry' in geoDf.columns
 
     def test_geoRdd(self, input_polygon_geodf_wkt, input_polygon_geodf_wkb):
         geoRdd = input_polygon_geodf_wkt.geoRdd
