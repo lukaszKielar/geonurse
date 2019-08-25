@@ -3,23 +3,18 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - codecov=2.0.15
-  - coverage=4.5.3
-  - dask=1.2.2
-  - fiona=1.8.6
-  - gdal=2.4.1
-  - geopandas=0.5.0
-  - ipykernel=5.1.1
-  - jupyter=1.0.0
-  - mypy
-  - numpy=1.16.3
-  - pandas=0.24.2
-  - pyarrow=0.13.0
-  - pylint=2.3.1
+  - codecov
+  - coverage
+  - dask
+  - geopandas=>0.5.0
+  - ipykernel
+  - jupyter
+  - pyarrow
+  - pylint
   - pyspark=2.4.0
-  - pytest=4.5.0
-  - pytest-cov=2.7.1
-  - pytest-runner=4.4
+  - pytest
+  - pytest-cov
+  - pytest-runner
   - python=3.7
-  - rtree=0.8.3
-  - tqdm=4.32.1
+  - rtree
+  - tqdm
