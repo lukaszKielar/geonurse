@@ -69,6 +69,7 @@ class GeoRDD(pyspark.rdd.RDD):
         return self.properties().toDF()
 
     def toGeoDF(self, method='wkt') -> geonurse.geodataframe.GeoDataFrame:
+        # TODO replace F.monotonically_increasing_id() with zipWithIndex()
         geometries_df = self._geometry_df(method=method).withColumn('id', F.monotonically_increasing_id())
         properties_df = self._property_df().withColumn('id', F.monotonically_increasing_id())
         df = (properties_df
